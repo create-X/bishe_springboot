@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.guet.dao.UsersMapper">
+    <!--<select id="getMenu" resultMap="getMenuAndChildMenusMap">-->
+        <!--SELECT m.* FROM menus m,role_menu rm WHERE m.id=rm.id AND roleid-->
+        <!--IN(SELECT roleid FROM user_role WHERE userid-->
+        <!--= (SELECT userid FROM users WHERE userid=#{userid}))-->
+    <!--</select>-->
+
+    <resultMap id="getMenuAndChildMenusMap" type="com.edu.guet.domain.Menus">
+        <id property="id" column="ID"/>
+        <result property="pId" column="PID"/>
+        <result property="name" column="NAME"/>
+        <result property="icon" column="ICON"/>
+        <result property="url" column="URL"/>
+        <collection property="childMenus" column="ID" select="getChildMenuByPID">
+        </collection>
+    </resultMap>
+
+    <select id="getChildMenuByPID" resultMap="getMenuAndChildMenusMap">
+		SELECT c.* FROM menus c,menus p WHERE c.pid=p.id AND p.id=#{value}
+	</select>
+
+    <select id="getMenuById" resultMap="getMenuAndChildMenusMap">
+		SELECT * FROM menus WHERE id=#{value}
+	</select>
+    <select id="getAllMenu" resultMap="getMenuAndChildMenusMap">
+		SELECT * FROM menus WHERE PID IS NULL
+	</select>
+
+    <select id="getUserMenu" resultMap="getMenuAndChildMenusMap">
+		SELECT m.* FROM menus m,user_role ur,role_menu rm WHERE ur.roleid=rm.roleid AND m.id=rm.id AND ur.userid=#{id} AND m.pid IS NULL
+	</select>
+
+    <select id="selectOneUsers" resultType="com.edu.guet.domain.Users">
+        SELECT *  FROM USERS WHERE USERID=#{userid} AND PASSWORD=#{password}
+    </select>
+
+    <insert id="insertUser" parameterType="com.edu.guet.domain.Teacher">
+        INSERT INTO users VALUES(#{userId},#{teacherName},#{password})
+    </insert>
+
+    <delete id="deleteUser" parameterType="String">
+        DELETE FROM users WHERE userid=#{userId}
+    </delete>
+</mapper>

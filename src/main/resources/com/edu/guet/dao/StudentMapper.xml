@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.guet.dao.StudentMapper">
+
+    <!--这里是给老师看的学生信息，只用显示学生即可，并不用查询其详细信息-->
+    <select id="queryAllStu" resultMap="selectStudent">
+      SELECT s.STUDENTID,u1.*,u2.USERID as teacherId,u2.USERNAME as teacherName,d.DEPARTMENTNAME
+        FROM STUDENT s,DEPARTMENT d,TEACHER t,USERS u1,USERS u2
+        WHERE d.DEPARTMENTID=s.DEPARTMENTID
+        AND t.USERID=s.TEACHERID
+        AND s.STUDENTID=u1.USERID
+        AND T.USERID=u2.USERID
+    </select>
+
+    <select id="queryAllStuByPage" resultMap="selectStudent">
+        SELECT * FROM ( SELECT rownum rn,t.*FROM
+        (SELECT s.STUDENTID,u1.*,u2.USERID as teacherId,u2.USERNAME as teacherName,d.DEPARTMENTNAME
+        FROM STUDENT s,DEPARTMENT d,TEACHER t,USERS u1,USERS u2
+        WHERE d.DEPARTMENTID=s.DEPARTMENTID
+--         如果要查老师的部门信息就增加这个条件
+--         AND d2.DEPARTMENTID=t.DEPARTMENTID
+        AND t.USERID=s.TEACHERID
+        AND s.STUDENTID=u1.USERID
+        AND T.USERID=u2.USERID)
+        t WHERE rownum &lt; = (#{currentPage}*#{limit}))
+        WHERE rn &gt; = ((#{currentPage}-1)*#{limit}+1)
+    </select>
+
+    <resultMap id="selectStudent" type="com.edu.guet.domain.Student">
+        <id property="studentId" column="STUDENTID"/>
+        <result property="phone" column="PHONE"/>
+        <result property="status" column="STATUS"/>
+        <association property="department" column="DEPARTMENTID" javaType="com.edu.guet.domain.Department">
+            <id property="departmentId" column="DEPARTMENTID"/>
+            <result property="departmentName" column="DEPARTMENTNAME"/>
+        </association>
+        <association property="teacher" column="TEACHERID" javaType="com.edu.guet.domain.Teacher">
+            <association property="users" column="STUDENTID" javaType="com.edu.guet.domain.Users">
+                <id property="userid" column="TEACHERID"/>
+                <result property="username" column="TEACHERNAME"/>
+            </association>
+        </association>
+        <association property="users" column="STUDENTID" javaType="com.edu.guet.domain.Users">
+            <id property="userid" column="USERID"/>
+            <result property="username" column="USERNAME"/>
+            <result property="password" column="PASSWORD"/>
+        </association>
+    </resultMap>
+
+    <update id="updateTeacherInStudent" parameterType="String">
+        UPDATE student SET teacherid='' WHERE teacherid=#{userId}
+    </update>
+
+    <update id="deleteDepartment" parameterType="String">
+        UPDATE student SET departmentid='' WHERE departmentid=#{departmentId}
+    </update>
+
+    <resultMap id="stuAndteaMap" type="com.edu.guet.domain.Student">
+        <id property="studentId" column="studentid"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <association property="department" column="departmentid" javaType="com.edu.guet.domain.Department">
+            <result property="departmentName" column="departmentname"/>
+        </association>
+        <association property="teacher" column="teacherid" javaType="com.edu.guet.domain.Teacher"  >
+            <result property="title" column="title"/>
+            <association property="users" column="userid" javaType="com.edu.guet.domain.Users">
+                <result property="userName" column="teacherName"/>
+            </association>
+        </association>
+        <association property="users" column="studentid" javaType="com.edu.guet.domain.Users">
+            <result property="userName" column="username"/>
+            <result property="password" column="password"/>
+        </association>
+    </resultMap>
+
+    <insert id="saveStudent" parameterType="com.edu.guet.domain.Student">
+        INSERT INTO student(studentid,departmentid,phone) VALUES(#{studentId},#{departmentId},#{phone})
+    </insert>
+
+    <delete id="deleteStudent" parameterType="string">
+        DELETE FROM student WHERE studentid=#{studentId}
+    </delete>
+
+    <select id="findStudentByPage"  resultMap="stuAndteaMap">
+        <![CDATA[SELECT s.studentid,u1.username,u1.password,u2.username as teacherName,tea.title,d.departmentname,s.phone,s.status FROM (SELECT * FROM (SELECT rownum rn,t.* FROM (SELECT * FROM student) t WHERE rownum<=#{endRow})  WHERE rn>=#{startRow}) s,teacher tea,users u1,users u2,department d
+        WHERE s.teacherid=tea.userid
+        AND s.studentid=u1.userid
+        AND s.departmentid=d.departmentid
+        AND tea.userid=u2.userid]]>
+    </select>
+
+    <delete id="deleteStuAndTe" parameterType="string">
+        DELETE FROM blacklist WHERE studentid=#{studentId}
+    </delete>
+
+    <select id="findStudentTotals" parameterType="int">
+        SELECT COUNT(*) FROM student
+    </select>
+
+    <insert id="saveRole" parameterType="com.edu.guet.domain.Student">
+       INSERT INTO user_role VALUES(#{studentId},#{roleId})
+   </insert>
+
+    <delete id="deleteRole" parameterType="string">
+        DELETE FROM user_role WHERE userid=#{studentId}
+    </delete>
+
+    <insert id="saveUser" parameterType="com.edu.guet.domain.Student">
+       INSERT INTO users VALUES(#{studentId},#{studentName},#{password})
+   </insert>
+
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM users WHERE userid=#{studentId}
+    </delete>
+
+
+</mapper>

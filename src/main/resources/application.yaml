@@ -1,0 +1,16 @@
+mybatis-plus:
+  type-aliases-package: com.edu.com.domain
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:com/edu/guet/dao/*.xml
+#  mapper-locations: classpath:/com/edu/com/*.xml
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@47.106.76.95:1521:orcl
+    username: wzh
+    password: wzh1234
+  application:
+    name: subject_double_pick
+
+

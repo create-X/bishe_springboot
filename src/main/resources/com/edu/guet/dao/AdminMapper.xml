@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.guet.dao.AdminMapper">
+
+    <delete id="deleteBlacklist" parameterType="String">
+        DELETE FROM blacklist WHERE teacherid=#{userId}
+    </delete>
+
+    <insert id="insertDepartment" parameterType="String">
+        INSERT INTO department VALUES(#{departmentId},#{departmentName})
+    </insert>
+
+    <delete id="deleteDepartment" parameterType="String">
+        DELETE FROM department WHERE departmentid=#{departmentId}
+    </delete>
+
+    <insert id="insertAdmin" parameterType="com.edu.guet.domain.Admin">
+        INSERT INTO admin VALUES(#{userId})
+    </insert>
+
+    <insert id="saveAdmin" parameterType="com.edu.guet.domain.Admin">
+        INSERT INTO admin VALUES(#{adminId})
+    </insert>
+
+    <insert id="saveRole" parameterType="com.edu.guet.domain.Admin">
+        INSERT INTO user_role VALUES(#{adminId},#{roleId})
+    </insert>
+
+    <insert id="saveUser" parameterType="com.edu.guet.domain.Admin">
+        INSERT INTO users VALUES(#{adminId},#{adminName},#{password})
+    </insert>
+
+    <delete id="deleteAdmin" parameterType="string">
+        DELETE FROM admin WHERE userid=#{adminId}
+    </delete>
+
+    <delete id="deleteRole" parameterType="string">
+        DELETE FROM user_role WHERE userid=#{adminId}
+    </delete>
+
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM users WHERE userid=#{adminId}
+    </delete>
+
+</mapper>
